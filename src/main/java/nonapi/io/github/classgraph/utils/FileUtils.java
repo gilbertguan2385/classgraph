@@ -537,30 +537,12 @@ public final class FileUtils {
             } catch (final ReflectiveOperationException | LinkageError e) {
                 // Ignore
             }
-        } else {
-            //boolean jdkSuccess = false;
-            //    // TODO: This feature is in incubation now -- enable after it leaves incubation.
-            //    // To enable this feature, need to:
-            //    // -- add whatever the "jdk.incubator.foreign" module name is replaced with to <Import-Package>
-            //    //    in pom.xml, as an optional dependency
-            //    // -- add the same module name to module-info.java as a "requires static" optional dependency
-            //    // -- build two versions of module.java: the existing one, for --release=9, and a new version,
-            //    //    for --release=15 (or whatever the final release version ends up being when the feature is
-            //    //    moved out of incubation). 
-            //    try {
-            //        // JDK 14+ Invoke MemorySegment.ofByteBuffer(myByteBuffer).close()
-            //        // https://stackoverflow.com/a/26777380/3950982
-            //        memorySegmentClass = Class.forName("jdk.incubator.foreign.MemorySegment");
-            //        memorySegmentCloseMethod = AutoCloseable.class.getDeclaredMethod("close");
-            //        memorySegmentOfByteBufferMethod = memorySegmentClass.getMethod("ofByteBuffer",
-            //                ByteBuffer.class);
-            //        jdk14Success = true;
-            //    } catch (ClassNotFoundException | NoSuchMethodException | SecurityException e1) {
-            //        // Fall through
-            //    }
-            //if (!jdk14Success) { // In JDK9+, calling sun.misc.Cleaner.clean() gives a reflection warning on stderr,
-            // so we need to call Unsafe.theUnsafe.invokeCleaner(byteBuffer) instead, which makes
-            // the same call, but does not print the reflection warning.
+        } else if (VersionFinder.JAVA_MAJOR_VERSION < 24) {
+            // JDK 24+ reports: "A terminally deprecated method in sun.misc.Unsafe has been called"
+            // if Unsafe::invokeCleaner is used, and we don't actually need the cleaner method unless
+            // direct memory mapping is used rather than FileChannel (ClassGraph#enableMemoryMapping
+            // disables this now for JDK 24+).
+            // See: https://github.com/classgraph/classgraph/issues/899
             try {
                 Class<?> unsafeClass;
                 try {
@@ -663,7 +645,7 @@ public final class FileUtils {
                 //        }
                 //        memorySegmentCloseMethod.invoke(memorySegment);
                 //        return true;
-            } else {
+            } else if (VersionFinder.JAVA_MAJOR_VERSION < 24) {
                 if (theUnsafe == null) {
                     if (log != null) {
                         log.log("Could not unmap ByteBuffer, theUnsafe == null");
@@ -683,6 +665,9 @@ public final class FileUtils {
                     // Buffer is a duplicate or slice
                     return false;
                 }
+            } else {
+                // TODO: on JDK 24+, use Arena -- see FileSlice
+                return false;
             }
         } catch (final ReflectiveOperationException | SecurityException e) {
             if (log != null) {

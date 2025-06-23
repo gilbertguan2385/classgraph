@@ -137,6 +137,8 @@ public class FileSlice extends Slice {
         this.isTopLevelFileSlice = true;
 
         if (nestedJarHandler.scanSpec.enableMemoryMapping) {
+            // TODO: for JDK 24+, use the new Arena API to memory-map the file to a MemorySegment:
+            // https://docs.oracle.com/en/java/javase/22/docs//api/java.base/java/nio/channels/FileChannel.html#map(java.nio.channels.FileChannel.MapMode,long,long,java.lang.foreign.Arena)
             try {
                 // Try mapping file (some operating systems throw OutOfMemoryError if file
                 // can't be mapped, some throw IOException)
