@@ -30,10 +30,7 @@ package nonapi.io.github.classgraph.classloaderhandler;
 
 import java.io.File;
 import java.lang.reflect.Array;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -109,45 +106,13 @@ class JBossClassLoaderHandler implements ClassLoaderHandler {
         // PathResourceLoader has root field, which is a Path object
         final Object root = classpathOrderOut.reflectionUtils.getFieldVal(false, resourceLoader, "root");
 
-        boolean found = addIfExists(loadJarPathFromClassicVFS(root, classpathOrderOut), classLoader,
-                classpathOrderOut, scanSpec, log);
-        found |= addIfExists(loadJarPathFromNewVFS(root, classpathOrderOut), classLoader, classpathOrderOut,
+        classpathOrderOut.addClasspathEntry(loadJarPathFromClassicVFS(root, classpathOrderOut), classLoader,
                 scanSpec, log);
-        found |= addIfExists(classpathOrderOut.reflectionUtils.getFieldVal(false, resourceLoader, "fileOfJar"),
-                classLoader, classpathOrderOut, scanSpec, log);
-        if (!found && log != null) {
-            log.log("Could not determine classpath for ResourceLoader: " + resourceLoader);
-        }
-    }
-
-    /**
-     * Checks if the given path exists and is a regular file, and if it does, adds it to the classpath.
-     *
-     * @param pathStr
-     *            the path to check
-     * @param classLoader
-     *            the classloader
-     * @param classpathOrderOut
-     *            the classpath order
-     * @param scanSpec
-     *            the scan spec
-     * @param log
-     *            the log
-     */
-    private static boolean addIfExists(final Object pathObj, final ClassLoader classLoader,
-            final ClasspathOrder classpathOrderOut, final ScanSpec scanSpec, final LogNode log) {
-        try {
-            Path path = pathObj == null ? null
-                    : pathObj instanceof String && !((String) pathObj).isEmpty() ? Paths.get((String) pathObj)
-                            : pathObj instanceof File ? ((File) pathObj).toPath() : null;
-            if (path != null && Files.exists(path) && Files.isRegularFile(path)) {
-                classpathOrderOut.addClasspathEntry(path, classLoader, scanSpec, log);
-                return true;
-            }
-        } catch (InvalidPathException e) {
-            //
-        }
-        return false;
+        classpathOrderOut.addClasspathEntry(loadJarPathFromNewVFS(root, classpathOrderOut), classLoader, scanSpec,
+                log);
+        classpathOrderOut.addClasspathEntry(
+                classpathOrderOut.reflectionUtils.getFieldVal(false, resourceLoader, "fileOfJar"), classLoader,
+                scanSpec, log);
     }
 
     /**
@@ -161,40 +126,35 @@ class JBossClassLoaderHandler implements ClassLoaderHandler {
      *            The root object to get the JAR path from.
      * @param classpathOrderOut
      *            The ClasspathOrder object for updating the classpath order.
-     * @return The absolute path of the JAR file, or null if the path couldn't be found.
+     * @return The {@link File} of the JAR file, or null if the path couldn't be found.
      */
-    private static String loadJarPathFromNewVFS(final Object root, final ClasspathOrder classpathOrderOut) {
+    private static File loadJarPathFromNewVFS(final Object root, final ClasspathOrder classpathOrderOut) {
         if (root == null) {
             return null;
         }
-
         final Class<?> jbossVFS = getJBossVFSAccess(root);
         if (jbossVFS == null) {
             return null;
         }
-
         // try to find the mount of the root. Type is org.jboss.vfs.VFS.Mount
         final Object mount = classpathOrderOut.reflectionUtils.invokeStaticMethod(false, jbossVFS, "getMount",
                 root.getClass(), root);
         if (mount == null) {
             return null;
         }
-
         // try to access the fileSystem of the mount. Type is org.jboss.vfs.spi.FileSystem
         final Object fileSystem = classpathOrderOut.reflectionUtils.invokeMethod(false, mount, "getFileSystem");
         if (fileSystem == null) {
             return null;
         }
-
         // now access the mount source, which is the file that is used to create the mount.
         final File mountSource = (File) classpathOrderOut.reflectionUtils.invokeMethod(false, fileSystem,
                 "getMountSource");
         if (mountSource == null) {
             return null;
         }
-
         // absolute path of the mountSource should be the 'physical' .jar
-        return mountSource.getAbsolutePath();
+        return mountSource;
     }
 
     /**
@@ -249,10 +209,12 @@ class JBossClassLoaderHandler implements ClassLoaderHandler {
      *            The root object to get the JAR path from.
      * @param classpathOrderOut
      *            The ClasspathOrder object for updating the classpath order.
-     * @return The absolute path of the JAR file, or null if the path couldn't be found.
+     * @return The {@link File} or {@link Path} of the JAR file, or null if the VFS path couldn't be found.
      */
-    private static String loadJarPathFromClassicVFS(final Object root, final ClasspathOrder classpathOrderOut) {
-        String path = null;
+    private static Object loadJarPathFromClassicVFS(final Object root, final ClasspathOrder classpathOrderOut) {
+        if (root == null) {
+            return null;
+        }
         // type VirtualFile
         final File physicalFile = (File) classpathOrderOut.reflectionUtils.invokeMethod(false, root,
                 "getPhysicalFile");
@@ -262,26 +224,21 @@ class JBossClassLoaderHandler implements ClassLoaderHandler {
                 // getParentFile() removes "contents" directory
                 final File file = new File(physicalFile.getParentFile(), name);
                 if (FileUtils.canRead(file)) {
-                    path = file.getAbsolutePath();
+                    return file;
                 } else {
                     // This is an exploded jar or classpath directory
-                    path = physicalFile.getAbsolutePath();
+                    return physicalFile;
                 }
             } else {
-                path = physicalFile.getAbsolutePath();
+                return physicalFile;
             }
         } else {
-            path = (String) classpathOrderOut.reflectionUtils.invokeMethod(false, root, "getPathName");
-            if (path == null) {
-                // Try Path or File
-                final File file = root instanceof Path ? ((Path) root).toFile()
-                        : root instanceof File ? (File) root : null;
-                if (file != null) {
-                    path = file.getAbsolutePath();
-                }
+            String path = (String) classpathOrderOut.reflectionUtils.invokeMethod(false, root, "getPathName");
+            if (path != null) {
+                return path;
             }
+            return root;
         }
-        return path;
     }
 
     /**
