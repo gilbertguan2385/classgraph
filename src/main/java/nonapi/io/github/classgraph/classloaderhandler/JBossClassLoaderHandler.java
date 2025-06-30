@@ -31,6 +31,7 @@ package nonapi.io.github.classgraph.classloaderhandler;
 import java.io.File;
 import java.lang.reflect.Array;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -108,38 +109,43 @@ class JBossClassLoaderHandler implements ClassLoaderHandler {
         // PathResourceLoader has root field, which is a Path object
         final Object root = classpathOrderOut.reflectionUtils.getFieldVal(false, resourceLoader, "root");
 
-        String path = loadJarPathFromClassicVFS(root, classpathOrderOut);
-        if (!isPathExisting(path)) {
-            path = loadJarPathFromNewVFS(root, classpathOrderOut);
-        }
-
-        if (path == null) {
-            final File file = (File) classpathOrderOut.reflectionUtils.getFieldVal(false, resourceLoader,
-                    "fileOfJar");
-            if (file != null) {
-                path = file.getAbsolutePath();
-            }
-        }
-        if (path != null) {
-            classpathOrderOut.addClasspathEntry(path, classLoader, scanSpec, log);
-        } else {
-            if (log != null) {
-                log.log("Could not determine classpath for ResourceLoader: " + resourceLoader);
-            }
+        boolean found = addIfExists(loadJarPathFromClassicVFS(root, classpathOrderOut), classLoader,
+                classpathOrderOut, scanSpec, log);
+        found |= addIfExists(loadJarPathFromNewVFS(root, classpathOrderOut), classLoader, classpathOrderOut,
+                scanSpec, log);
+        found |= addIfExists(classpathOrderOut.reflectionUtils.getFieldVal(false, resourceLoader, "fileOfJar"),
+                classLoader, classpathOrderOut, scanSpec, log);
+        if (!found && log != null) {
+            log.log("Could not determine classpath for ResourceLoader: " + resourceLoader);
         }
     }
 
     /**
-     * Checks if the given path exists and is a regular file.
+     * Checks if the given path exists and is a regular file, and if it does, adds it to the classpath.
      *
-     * @param path
+     * @param pathStr
      *            the path to check
-     * @return true if the path exists and is a regular file, false otherwise
+     * @param classLoader
+     *            the classloader
+     * @param classpathOrderOut
+     *            the classpath order
+     * @param scanSpec
+     *            the scan spec
+     * @param log
+     *            the log
      */
-    private static boolean isPathExisting(final String path) {
-        if (path != null && !path.isEmpty()) {
-            final Path possibleExistingPath = Paths.get(path);
-            return Files.exists(possibleExistingPath) && Files.isRegularFile(possibleExistingPath);
+    private static boolean addIfExists(final Object pathObj, final ClassLoader classLoader,
+            final ClasspathOrder classpathOrderOut, final ScanSpec scanSpec, final LogNode log) {
+        try {
+            Path path = pathObj == null ? null
+                    : pathObj instanceof String && !((String) pathObj).isEmpty() ? Paths.get((String) pathObj)
+                            : pathObj instanceof File ? ((File) pathObj).toPath() : null;
+            if (path != null && Files.exists(path) && Files.isRegularFile(path)) {
+                classpathOrderOut.addClasspathEntry(path, classLoader, scanSpec, log);
+                return true;
+            }
+        } catch (InvalidPathException e) {
+            //
         }
         return false;
     }
@@ -158,7 +164,6 @@ class JBossClassLoaderHandler implements ClassLoaderHandler {
      * @return The absolute path of the JAR file, or null if the path couldn't be found.
      */
     private static String loadJarPathFromNewVFS(final Object root, final ClasspathOrder classpathOrderOut) {
-
         if (root == null) {
             return null;
         }
@@ -276,7 +281,6 @@ class JBossClassLoaderHandler implements ClassLoaderHandler {
                 }
             }
         }
-
         return path;
     }
 
