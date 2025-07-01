@@ -262,28 +262,30 @@ public class ClasspathFinder {
             final LogNode classloaderURLLog = classpathFinderLog == null ? null
                     : classpathFinderLog.log("Obtaining URLs from classloaders in delegation order");
             final List<ClassLoader> finalClassLoaderOrder = new ArrayList<>();
-            for (final Entry<ClassLoader, ClassLoaderHandlerRegistryEntry> ent : classLoaderOrder
+            for (final Entry<ClassLoader, List<ClassLoaderHandlerRegistryEntry>> ent : classLoaderOrder
                     .getClassLoaderOrder()) {
                 final ClassLoader classLoader = ent.getKey();
-                final ClassLoaderHandlerRegistryEntry classLoaderHandlerRegistryEntry = ent.getValue();
-                // Add classpath entries to ignoredClasspathOrder or classpathOrder
-                if (!scanSpec.ignoreParentClassLoaders || !allParentClassLoaders.contains(classLoader)) {
-                    // Otherwise add classpath entries to classpathOrder, and add the classloader to the
-                    // final classloader ordering
-                    final LogNode classloaderHandlerLog = classloaderURLLog == null ? null
-                            : classloaderURLLog
-                                    .log("Classloader " + classLoader.getClass().getName() + " is handled by "
-                                            + classLoaderHandlerRegistryEntry.classLoaderHandlerClass.getName());
-                    classLoaderHandlerRegistryEntry.findClasspathOrder(classLoader, classpathOrder, scanSpec,
-                            classloaderHandlerLog);
-                    finalClassLoaderOrder.add(classLoader);
-                } else if (classloaderURLLog != null) {
-                    classloaderURLLog.log("Ignoring parent classloader " + classLoader + ", normally handled by "
-                            + classLoaderHandlerRegistryEntry.classLoaderHandlerClass.getName());
-                }
-                // See if a previous scan's ClassGraphClassLoader should be delegated to first
-                if (classLoader instanceof ClassGraphClassLoader) {
-                    delegateClassGraphClassLoader = (ClassGraphClassLoader) classLoader;
+                for (final ClassLoaderHandlerRegistryEntry classLoaderHandlerRegistryEntry : ent.getValue()) {
+                    // Add classpath entries to ignoredClasspathOrder or classpathOrder
+                    if (!scanSpec.ignoreParentClassLoaders || !allParentClassLoaders.contains(classLoader)) {
+                        // Otherwise add classpath entries to classpathOrder, and add the classloader to the
+                        // final classloader ordering
+                        final LogNode classloaderHandlerLog = classloaderURLLog == null ? null
+                                : classloaderURLLog.log("Classloader " + classLoader.getClass().getName()
+                                        + " is handled by "
+                                        + classLoaderHandlerRegistryEntry.classLoaderHandlerClass.getName());
+                        classLoaderHandlerRegistryEntry.findClasspathOrder(classLoader, classpathOrder, scanSpec,
+                                classloaderHandlerLog);
+                        finalClassLoaderOrder.add(classLoader);
+                    } else if (classloaderURLLog != null) {
+                        classloaderURLLog
+                                .log("Ignoring parent classloader " + classLoader + ", normally handled by "
+                                        + classLoaderHandlerRegistryEntry.classLoaderHandlerClass.getName());
+                    }
+                    // See if a previous scan's ClassGraphClassLoader should be delegated to first
+                    if (classLoader instanceof ClassGraphClassLoader) {
+                        delegateClassGraphClassLoader = (ClassGraphClassLoader) classLoader;
+                    }
                 }
             }
 

@@ -28,6 +28,7 @@
  */
 package nonapi.io.github.classgraph.classloaderhandler;
 
+import nonapi.io.github.classgraph.classpath.ClassLoaderFinder;
 import nonapi.io.github.classgraph.classpath.ClassLoaderOrder;
 import nonapi.io.github.classgraph.classpath.ClasspathOrder;
 import nonapi.io.github.classgraph.scanspec.ScanSpec;
@@ -53,9 +54,12 @@ class WebsphereTraditionalClassLoaderHandler implements ClassLoaderHandler {
      * @return true if this {@link ClassLoaderHandler} can handle the {@link ClassLoader}.
      */
     public static boolean canHandle(final Class<?> classLoaderClass, final LogNode log) {
-        return "com.ibm.ws.classloader.CompoundClassLoader".equals(classLoaderClass.getName())
-                || "com.ibm.ws.classloader.ProtectionClassLoader".equals(classLoaderClass.getName())
-                || "com.ibm.ws.bootstrap.ExtClassLoader".equals(classLoaderClass.getName());
+        return ClassLoaderFinder.classIsOrExtendsOrImplements(classLoaderClass,
+                "com.ibm.ws.classloader.CompoundClassLoader")
+                || ClassLoaderFinder.classIsOrExtendsOrImplements(classLoaderClass,
+                        "com.ibm.ws.classloader.ProtectionClassLoader")
+                || ClassLoaderFinder.classIsOrExtendsOrImplements(classLoaderClass,
+                        "com.ibm.ws.bootstrap.ExtClassLoader");
     }
 
     /**

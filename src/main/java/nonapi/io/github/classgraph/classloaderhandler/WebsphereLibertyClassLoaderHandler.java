@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import nonapi.io.github.classgraph.classpath.ClassLoaderFinder;
 import nonapi.io.github.classgraph.classpath.ClassLoaderOrder;
 import nonapi.io.github.classgraph.classpath.ClasspathOrder;
 import nonapi.io.github.classgraph.reflection.ReflectionUtils;
@@ -75,8 +76,9 @@ class WebsphereLibertyClassLoaderHandler implements ClassLoaderHandler {
      * @return true if this {@link ClassLoaderHandler} can handle the {@link ClassLoader}.
      */
     public static boolean canHandle(final Class<?> classLoaderClass, final LogNode log) {
-        return IBM_APP_CLASS_LOADER.equals(classLoaderClass.getName())
-                || IBM_THREAD_CONTEXT_CLASS_LOADER.equals(classLoaderClass.getName());
+        return ClassLoaderFinder.classIsOrExtendsOrImplements(classLoaderClass, IBM_APP_CLASS_LOADER)
+                || ClassLoaderFinder.classIsOrExtendsOrImplements(classLoaderClass,
+                        IBM_THREAD_CONTEXT_CLASS_LOADER);
     }
 
     /**

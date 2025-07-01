@@ -28,6 +28,7 @@
  */
 package nonapi.io.github.classgraph.classloaderhandler;
 
+import nonapi.io.github.classgraph.classpath.ClassLoaderFinder;
 import nonapi.io.github.classgraph.classpath.ClassLoaderOrder;
 import nonapi.io.github.classgraph.classpath.ClasspathOrder;
 import nonapi.io.github.classgraph.scanspec.ScanSpec;
@@ -49,8 +50,10 @@ class UnoOneJarClassLoaderHandler implements ClassLoaderHandler {
      * @return true if this {@link ClassLoaderHandler} can handle the {@link ClassLoader}.
      */
     public static boolean canHandle(final Class<?> classLoaderClass, final LogNode log) {
-        return "com.needhamsoftware.unojar.JarClassLoader".equals(classLoaderClass.getName())
-                || "com.simontuffs.onejar.JarClassLoader".equals(classLoaderClass.getName());
+        return ClassLoaderFinder.classIsOrExtendsOrImplements(classLoaderClass,
+                "com.needhamsoftware.unojar.JarClassLoader")
+                || ClassLoaderFinder.classIsOrExtendsOrImplements(classLoaderClass,
+                        "com.simontuffs.onejar.JarClassLoader");
     }
 
     /**

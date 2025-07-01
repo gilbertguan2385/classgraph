@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import nonapi.io.github.classgraph.classpath.ClassLoaderFinder;
 import nonapi.io.github.classgraph.classpath.ClassLoaderOrder;
 import nonapi.io.github.classgraph.classpath.ClasspathOrder;
 import nonapi.io.github.classgraph.scanspec.ScanSpec;
@@ -58,7 +59,7 @@ class QuarkusClassLoaderHandler implements ClassLoaderHandler {
     // Class path elements prior to Quarkus 3.11
     private static final Map<String, String> PRE_311_RESOURCE_BASED_ELEMENTS;
     static {
-        Map<String, String> hlp = new HashMap<>();
+        final Map<String, String> hlp = new HashMap<>();
         hlp.put("io.quarkus.bootstrap.classloading.JarClassPathElement", "file");
         hlp.put("io.quarkus.bootstrap.classloading.DirectoryClassPathElement", "root");
         PRE_311_RESOURCE_BASED_ELEMENTS = Collections.unmodifiableMap(hlp);
@@ -80,9 +81,9 @@ class QuarkusClassLoaderHandler implements ClassLoaderHandler {
      * @return true, if classLoaderClass is the Quarkus RuntimeClassloader or QuarkusClassloader
      */
     public static boolean canHandle(final Class<?> classLoaderClass, final LogNode log) {
-        return RUNTIME_CLASSLOADER.equals(classLoaderClass.getName())
-                || QUARKUS_CLASSLOADER.equals(classLoaderClass.getName())
-                || RUNNER_CLASSLOADER.equals(classLoaderClass.getName());
+        return ClassLoaderFinder.classIsOrExtendsOrImplements(classLoaderClass, RUNTIME_CLASSLOADER)
+                || ClassLoaderFinder.classIsOrExtendsOrImplements(classLoaderClass, QUARKUS_CLASSLOADER)
+                || ClassLoaderFinder.classIsOrExtendsOrImplements(classLoaderClass, RUNNER_CLASSLOADER);
     }
 
     /**
@@ -129,14 +130,15 @@ class QuarkusClassLoaderHandler implements ClassLoaderHandler {
     private static void findClasspathOrderForQuarkusClassloader(final ClassLoader classLoader,
             final ClasspathOrder classpathOrder, final ScanSpec scanSpec, final LogNode log) {
 
-        Collection<Object> elements = findQuarkusClassLoaderElements(classLoader, classpathOrder);
+        final Collection<Object> elements = findQuarkusClassLoaderElements(classLoader, classpathOrder);
 
         for (final Object element : elements) {
             final String elementClassName = element.getClass().getName();
             final String fieldName = PRE_311_RESOURCE_BASED_ELEMENTS.get(elementClassName);
             if (fieldName != null) {
-                classpathOrder.addClasspathEntry(classpathOrder.reflectionUtils.getFieldVal(false, element, fieldName),
-                        classLoader, scanSpec, log);
+                classpathOrder.addClasspathEntry(
+                        classpathOrder.reflectionUtils.getFieldVal(false, element, fieldName), classLoader,
+                        scanSpec, log);
             } else {
                 final Object rootPath = classpathOrder.reflectionUtils.invokeMethod(false, element, "getRoot");
                 if (rootPath instanceof Path) {
@@ -147,15 +149,16 @@ class QuarkusClassLoaderHandler implements ClassLoaderHandler {
     }
 
     @SuppressWarnings("unchecked")
-    private static Collection<Object> findQuarkusClassLoaderElements(final ClassLoader classLoader, final ClasspathOrder classpathOrder) {
+    private static Collection<Object> findQuarkusClassLoaderElements(final ClassLoader classLoader,
+            final ClasspathOrder classpathOrder) {
         Collection<Object> elements = (Collection<Object>) classpathOrder.reflectionUtils.getFieldVal(false,
-            classLoader, "elements");
+                classLoader, "elements");
         if (elements == null) {
             elements = new ArrayList<>();
             // Since 3.16.x
-            for (String fieldName : new String[] {"normalPriorityElements", "lesserPriorityElements"}) {
-                Collection<Object> fieldVal = (Collection<Object>) classpathOrder.reflectionUtils.getFieldVal(false,
-                    classLoader, fieldName);
+            for (final String fieldName : new String[] { "normalPriorityElements", "lesserPriorityElements" }) {
+                final Collection<Object> fieldVal = (Collection<Object>) classpathOrder.reflectionUtils
+                        .getFieldVal(false, classLoader, fieldName);
                 if (fieldVal == null) {
                     continue;
                 }

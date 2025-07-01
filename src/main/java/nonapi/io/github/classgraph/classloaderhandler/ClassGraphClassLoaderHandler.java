@@ -31,6 +31,7 @@ package nonapi.io.github.classgraph.classloaderhandler;
 import java.net.URL;
 
 import io.github.classgraph.ClassGraphClassLoader;
+import nonapi.io.github.classgraph.classpath.ClassLoaderFinder;
 import nonapi.io.github.classgraph.classpath.ClassLoaderOrder;
 import nonapi.io.github.classgraph.classpath.ClasspathOrder;
 import nonapi.io.github.classgraph.scanspec.ScanSpec;
@@ -55,7 +56,8 @@ class ClassGraphClassLoaderHandler implements ClassLoaderHandler {
      * @return true if this {@link ClassLoaderHandler} can handle the {@link ClassLoader}.
      */
     public static boolean canHandle(final Class<?> classLoaderClass, final LogNode log) {
-        final boolean matches = "io.github.classgraph.ClassGraphClassLoader".equals(classLoaderClass.getName());
+        final boolean matches = ClassLoaderFinder.classIsOrExtendsOrImplements(classLoaderClass,
+                "io.github.classgraph.ClassGraphClassLoader");
         if (matches && log != null) {
             log.log("Sharing a `ClassGraphClassLoader` between multiple nested scans is not advisable, "
                     + "because scan criteria may differ between scans. "

@@ -52,6 +52,28 @@ public class ClassLoaderFinder {
 
     // -------------------------------------------------------------------------------------------------------------
 
+    /** Return true if the class is, extends, or implements a given named class or interface. */
+    // TODO: make this a default method of the ClassLoaderHandler interface in ClassGraph 5.x
+    public static boolean classIsOrExtendsOrImplements(Class<?> cls, String className) {
+        if (cls == null) {
+            return false;
+        }
+        if (cls.getName().equals(className)) {
+            return true;
+        }
+        if (classIsOrExtendsOrImplements(cls.getSuperclass(), className)) {
+            return true;
+        }
+        for (Class<?> iface : cls.getInterfaces()) {
+            if (classIsOrExtendsOrImplements(iface, className)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    // -------------------------------------------------------------------------------------------------------------
+
     /**
      * A class to find the unique ordered classpath elements.
      * 

@@ -30,6 +30,7 @@ package nonapi.io.github.classgraph.classloaderhandler;
 
 import java.util.SortedSet;
 
+import nonapi.io.github.classgraph.classpath.ClassLoaderFinder;
 import nonapi.io.github.classgraph.classpath.ClassLoaderOrder;
 import nonapi.io.github.classgraph.classpath.ClasspathOrder;
 import nonapi.io.github.classgraph.reflection.ReflectionUtils;
@@ -56,7 +57,8 @@ class PlexusClassWorldsClassRealmClassLoaderHandler implements ClassLoaderHandle
      * @return true if this {@link ClassLoaderHandler} can handle the {@link ClassLoader}.
      */
     public static boolean canHandle(final Class<?> classLoaderClass, final LogNode log) {
-        return "org.codehaus.plexus.classworlds.realm.ClassRealm".equals(classLoaderClass.getName());
+        return ClassLoaderFinder.classIsOrExtendsOrImplements(classLoaderClass,
+                "org.codehaus.plexus.classworlds.realm.ClassRealm");
     }
 
     /**

@@ -28,17 +28,16 @@
  */
 package nonapi.io.github.classgraph.classpath;
 
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import io.github.classgraph.ClassGraph;
-import nonapi.io.github.classgraph.classloaderhandler.ClassLoaderHandler;
 import nonapi.io.github.classgraph.classloaderhandler.ClassLoaderHandlerRegistry;
 import nonapi.io.github.classgraph.classloaderhandler.ClassLoaderHandlerRegistry.ClassLoaderHandlerRegistryEntry;
 import nonapi.io.github.classgraph.reflection.ReflectionUtils;
@@ -47,7 +46,7 @@ import nonapi.io.github.classgraph.utils.LogNode;
 /** A class to find all unique classloaders. */
 public class ClassLoaderOrder {
     /** The {@link ClassLoader} order. */
-    private final List<Entry<ClassLoader, ClassLoaderHandlerRegistryEntry>> classLoaderOrder = new ArrayList<>();
+    private final Map<ClassLoader, List<ClassLoaderHandlerRegistryEntry>> classLoaderOrder = new LinkedHashMap<>();
 
     public ReflectionUtils reflectionUtils;
 
@@ -74,10 +73,6 @@ public class ClassLoaderOrder {
     private final Set<ClassLoader> allParentClassLoaders = Collections
             .newSetFromMap(new IdentityHashMap<ClassLoader, Boolean>());
 
-    /** A map from {@link ClassLoader} to {@link ClassLoaderHandlerRegistryEntry}. */
-    private final Map<ClassLoader, ClassLoaderHandlerRegistryEntry> classLoaderToClassLoaderHandlerRegistryEntry = //
-            new IdentityHashMap<>();
-
     // -------------------------------------------------------------------------------------------------------------
 
     public ClassLoaderOrder(final ReflectionUtils reflectionUtils) {
@@ -90,8 +85,8 @@ public class ClassLoaderOrder {
      * @return the {@link ClassLoader} order, as a pair: {@link ClassLoader},
      *         {@link ClassLoaderHandlerRegistryEntry}.
      */
-    public List<Entry<ClassLoader, ClassLoaderHandlerRegistryEntry>> getClassLoaderOrder() {
-        return classLoaderOrder;
+    public List<Entry<ClassLoader, List<ClassLoaderHandlerRegistryEntry>>> getClassLoaderOrder() {
+        return new ArrayList<>(classLoaderOrder.entrySet());
     }
 
     /**
@@ -103,42 +98,22 @@ public class ClassLoaderOrder {
         return allParentClassLoaders;
     }
 
-    /**
-     * Find the {@link ClassLoaderHandler} that can handle a given {@link ClassLoader} instance.
-     *
-     * @param classLoader
-     *            the {@link ClassLoader}.
-     * @param log
-     *            the log
-     * @return the {@link ClassLoaderHandlerRegistryEntry} for the {@link ClassLoader}.
-     */
-    private ClassLoaderHandlerRegistryEntry getRegistryEntry(final ClassLoader classLoader, final LogNode log) {
-        ClassLoaderHandlerRegistryEntry entry = classLoaderToClassLoaderHandlerRegistryEntry.get(classLoader);
-        if (entry == null) {
-            // Try all superclasses of classloader in turn
-            for (Class<?> currClassLoaderClass = classLoader.getClass(); // 
-                    currClassLoaderClass != Object.class && currClassLoaderClass != null; //
-                    currClassLoaderClass = currClassLoaderClass.getSuperclass()) {
-                // Find a ClassLoaderHandler that can handle the ClassLoader
-                for (final ClassLoaderHandlerRegistryEntry ent : ClassLoaderHandlerRegistry.CLASS_LOADER_HANDLERS) {
-                    if (ent.canHandle(currClassLoaderClass, log)) {
-                        // This ClassLoaderHandler can handle the ClassLoader class, or one of its superclasses
-                        entry = ent;
-                        break;
-                    }
-                }
-                if (entry != null) {
-                    // Don't iterate to next superclass if a matching ClassLoaderHandler was found
-                    break;
-                }
+    /** Get the ClassLoaderHandler(s) that can handle a given ClassLoader. */
+    private static List<ClassLoaderHandlerRegistryEntry> getClassLoaderHandlerRegistryEntries(
+            final ClassLoader classLoader, final LogNode log) {
+        List<ClassLoaderHandlerRegistryEntry> ents = new ArrayList<>();
+        boolean matched = false;
+        for (final ClassLoaderHandlerRegistryEntry ent : ClassLoaderHandlerRegistry.CLASS_LOADER_HANDLERS) {
+            if (ent.canHandle(classLoader.getClass(), log)) {
+                // This ClassLoaderHandler can handle the ClassLoader class, or one of its superclasses
+                ents.add(ent);
+                matched = true;
             }
-            if (entry == null) {
-                // Use fallback handler
-                entry = ClassLoaderHandlerRegistry.FALLBACK_HANDLER;
-            }
-            classLoaderToClassLoaderHandlerRegistryEntry.put(classLoader, entry);
         }
-        return entry;
+        if (!matched) {
+            ents.add(ClassLoaderHandlerRegistry.FALLBACK_HANDLER);
+        }
+        return ents;
     }
 
     /**
@@ -154,10 +129,7 @@ public class ClassLoaderOrder {
             return;
         }
         if (added.add(classLoader)) {
-            final ClassLoaderHandlerRegistryEntry entry = getRegistryEntry(classLoader, log);
-            if (entry != null) {
-                classLoaderOrder.add(new SimpleEntry<>(classLoader, entry));
-            }
+            classLoaderOrder.put(classLoader, getClassLoaderHandlerRegistryEntries(classLoader, log));
         }
     }
 
@@ -183,10 +155,13 @@ public class ClassLoaderOrder {
         }
         // Don't delegate to a classloader twice
         if (delegatedTo.add(classLoader)) {
-            // Find ClassLoaderHandlerRegistryEntry for this classloader
-            final ClassLoaderHandlerRegistryEntry entry = getRegistryEntry(classLoader, log);
-            // Delegate to this classloader, by recursing to that classloader to get its classloader order
-            entry.findClassLoaderOrder(classLoader, this, log);
+            add(classLoader, log);
+            // Recurse to get delegation order
+            // (note: may be wrong if multiple ClassLoaderHandlers can handle this classloader)
+            for (final ClassLoaderHandlerRegistryEntry entry : getClassLoaderHandlerRegistryEntries(classLoader,
+                    /* Don't log twice -- also logged by add method above */ null)) {
+                entry.findClassLoaderOrder(classLoader, this, log);
+            }
         }
     }
 }

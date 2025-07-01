@@ -30,6 +30,7 @@ package nonapi.io.github.classgraph.classloaderhandler;
 
 import java.net.URL;
 
+import nonapi.io.github.classgraph.classpath.ClassLoaderFinder;
 import nonapi.io.github.classgraph.classpath.ClassLoaderOrder;
 import nonapi.io.github.classgraph.classpath.ClasspathOrder;
 import nonapi.io.github.classgraph.scanspec.ScanSpec;
@@ -54,8 +55,10 @@ class JPMSClassLoaderHandler implements ClassLoaderHandler {
      * @return true if this {@link ClassLoaderHandler} can handle the {@link ClassLoader}.
      */
     public static boolean canHandle(final Class<?> classLoaderClass, final LogNode log) {
-        return "jdk.internal.loader.ClassLoaders$AppClassLoader".equals(classLoaderClass.getName())
-                || "jdk.internal.loader.BuiltinClassLoader".equals(classLoaderClass.getName());
+        return ClassLoaderFinder.classIsOrExtendsOrImplements(classLoaderClass,
+                "jdk.internal.loader.ClassLoaders$AppClassLoader")
+                || ClassLoaderFinder.classIsOrExtendsOrImplements(classLoaderClass,
+                        "jdk.internal.loader.BuiltinClassLoader");
     }
 
     /**

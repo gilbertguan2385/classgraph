@@ -28,6 +28,7 @@
  */
 package nonapi.io.github.classgraph.classloaderhandler;
 
+import nonapi.io.github.classgraph.classpath.ClassLoaderFinder;
 import nonapi.io.github.classgraph.classpath.ClassLoaderOrder;
 import nonapi.io.github.classgraph.classpath.ClasspathOrder;
 import nonapi.io.github.classgraph.scanspec.ScanSpec;
@@ -49,13 +50,18 @@ class WeblogicClassLoaderHandler implements ClassLoaderHandler {
      * @return true if this {@link ClassLoaderHandler} can handle the {@link ClassLoader}.
      */
     public static boolean canHandle(final Class<?> classLoaderClass, final LogNode log) {
-        return "weblogic.utils.classloaders.ChangeAwareClassLoader".equals(classLoaderClass.getName())
-                || "weblogic.utils.classloaders.GenericClassLoader".equals(classLoaderClass.getName())
-                || "weblogic.utils.classloaders.FilteringClassLoader".equals(classLoaderClass.getName())
+        return ClassLoaderFinder.classIsOrExtendsOrImplements(classLoaderClass,
+                "weblogic.utils.classloaders.ChangeAwareClassLoader")
+                || ClassLoaderFinder.classIsOrExtendsOrImplements(classLoaderClass,
+                        "weblogic.utils.classloaders.GenericClassLoader")
+                || ClassLoaderFinder.classIsOrExtendsOrImplements(classLoaderClass,
+                        "weblogic.utils.classloaders.FilteringClassLoader")
                 // TODO: The following two known classloader names have not been tested, and the fields/methods
                 // may not match those of the above classloaders.
-                || "weblogic.servlet.jsp.JspClassLoader".equals(classLoaderClass.getName())
-                || "weblogic.servlet.jsp.TagFileClassLoader".equals(classLoaderClass.getName());
+                || ClassLoaderFinder.classIsOrExtendsOrImplements(classLoaderClass,
+                        "weblogic.servlet.jsp.JspClassLoader")
+                || ClassLoaderFinder.classIsOrExtendsOrImplements(classLoaderClass,
+                        "weblogic.servlet.jsp.TagFileClassLoader");
     }
 
     /**

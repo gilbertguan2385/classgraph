@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import nonapi.io.github.classgraph.classpath.ClassLoaderFinder;
 import nonapi.io.github.classgraph.classpath.ClassLoaderOrder;
 import nonapi.io.github.classgraph.classpath.ClasspathOrder;
 import nonapi.io.github.classgraph.reflection.ReflectionUtils;
@@ -62,10 +63,10 @@ class FelixClassLoaderHandler implements ClassLoaderHandler {
      * @return true if this {@link ClassLoaderHandler} can handle the {@link ClassLoader}.
      */
     public static boolean canHandle(final Class<?> classLoaderClass, final LogNode log) {
-        return "org.apache.felix.framework.BundleWiringImpl$BundleClassLoaderJava5"
-                .equals(classLoaderClass.getName())
-                || "org.apache.felix.framework.BundleWiringImpl$BundleClassLoader"
-                        .equals(classLoaderClass.getName());
+        return ClassLoaderFinder.classIsOrExtendsOrImplements(classLoaderClass,
+                "org.apache.felix.framework.BundleWiringImpl$BundleClassLoaderJava5")
+                || ClassLoaderFinder.classIsOrExtendsOrImplements(classLoaderClass,
+                        "org.apache.felix.framework.BundleWiringImpl$BundleClassLoader");
     }
 
     /**

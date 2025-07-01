@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import nonapi.io.github.classgraph.classpath.ClassLoaderFinder;
 import nonapi.io.github.classgraph.classpath.ClassLoaderOrder;
 import nonapi.io.github.classgraph.classpath.ClasspathOrder;
 import nonapi.io.github.classgraph.scanspec.ScanSpec;
@@ -65,7 +66,8 @@ class JBossClassLoaderHandler implements ClassLoaderHandler {
      * @return true if this {@link ClassLoaderHandler} can handle the {@link ClassLoader}.
      */
     public static boolean canHandle(final Class<?> classLoaderClass, final LogNode log) {
-        return "org.jboss.modules.ModuleClassLoader".equals(classLoaderClass.getName());
+        return ClassLoaderFinder.classIsOrExtendsOrImplements(classLoaderClass,
+                "org.jboss.modules.ModuleClassLoader");
     }
 
     /**
@@ -233,7 +235,7 @@ class JBossClassLoaderHandler implements ClassLoaderHandler {
                 return physicalFile;
             }
         } else {
-            String path = (String) classpathOrderOut.reflectionUtils.invokeMethod(false, root, "getPathName");
+            final String path = (String) classpathOrderOut.reflectionUtils.invokeMethod(false, root, "getPathName");
             if (path != null) {
                 return path;
             }
