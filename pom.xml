@@ -1,6 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>io.github.classgraph</groupId>
@@ -8,8 +6,7 @@
 	<version>4.8.181</version>
 	<name>ClassGraph</name>
 
-	<description>The uber-fast, ultra-lightweight classpath and module scanner
-		for JVM languages.</description>
+	<description>The uber-fast, ultra-lightweight classpath and module scanner for JVM languages.</description>
 
 	<url>https://github.com/classgraph/classgraph</url>
 
@@ -49,17 +46,13 @@
 		<!-- Default to generating Javadoc in HTML 4.01 format -->
 		<javadoc.html.version />
 
-		<!-- Warnings are disabled, in order to suppress warning about bootstrap
-		classpath not being set -->
-		<!-- (which arises as a result of building for JDK 7 on JDK8+, allowing
-		for use of @FunctionalInterface) -->
+		<!-- Warnings are disabled, in order to suppress warning about bootstrap classpath not being set -->
+		<!-- (which arises as a result of building for JDK 7 on JDK8+, allowing for use of @FunctionalInterface) -->
 		<!-- <maven.compiler.showWarnings>true</maven.compiler.showWarnings> -->
-		<!--
-		<maven.compiler.showDeprecation>true</maven.compiler.showDeprecation> -->
+		<!-- <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation> -->
 	</properties>
 
-	<!-- Find dependency updates with: ./mvnw
-	versions:display-dependency-updates -->
+	<!-- Find dependency updates with: ./mvnw versions:display-dependency-updates -->
 	<dependencies>
 		<!-- Optional runtime dependency: -->
 		<dependency>
@@ -143,15 +136,11 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- "provided" dependencies (soft compile-time dependencies that do not
-		create a runtime dependency): -->
+		<!-- "provided" dependencies (soft compile-time dependencies that do not create a runtime dependency): -->
 		<dependency>
-			<!-- Needed for Eclipse nullability analysis to work, but use
-			"provided" as the scope so that we -->
-			<!-- don't add a hard dependency on the JDT annotations, because we
-			don't use the annotations in -->
-			<!-- any of the ClassGraph code, so these annotations are not needed
-			at runtime. -->
+			<!-- Needed for Eclipse nullability analysis to work, but use "provided" as the scope so that we -->
+			<!-- don't add a hard dependency on the JDT annotations, because we don't use the annotations in -->
+			<!-- any of the ClassGraph code, so these annotations are not needed at runtime. -->
 			<!-- See: https://bugs.eclipse.org/bugs/show_bug.cgi?id=552198 -->
 			<groupId>org.eclipse.jdt</groupId>
 			<artifactId>org.eclipse.jdt.annotation</artifactId>
@@ -162,13 +151,10 @@
 
 	<build>
 		<plugins>
-			<!-- Plugins are listed here, but configured in pluginManagement,
-			for compatibility with Eclipse. -->
+			<!-- Plugins are listed here, but configured in pluginManagement, for compatibility with Eclipse. -->
 			<!-- See: https://stackoverflow.com/a/10483284/3950982 -->
-			<!-- Find plugin updates with: ./mvnw
-			versions:display-plugin-updates -->
-			<!-- List order of plugin execution with: ./mvnw -Prelease
-			fr.jcgay.maven.plugins:buildplan-maven-plugin:list-phase -->
+			<!-- Find plugin updates with: ./mvnw versions:display-plugin-updates -->
+			<!-- List order of plugin execution with: ./mvnw -Prelease fr.jcgay.maven.plugins:buildplan-maven-plugin:list-phase -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>
@@ -220,8 +206,7 @@
 				<version>3.2.3</version>
 			</plugin>
 
-			<!-- Override versions of the following plugins, inherited from the
-			super-pom, with latest versions -->
+			<!-- Override versions of the following plugins, inherited from the super-pom, with latest versions -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-clean-plugin</artifactId>
@@ -284,8 +269,7 @@
 							</goals>
 							<configuration>
 								<rules>
-									<checkSignatureRule
-										implementation="org.codehaus.mojo.animal_sniffer.enforcer.CheckSignatureRule">
+									<checkSignatureRule implementation="org.codehaus.mojo.animal_sniffer.enforcer.CheckSignatureRule">
 										<signature>
 											<groupId>org.codehaus.mojo.signature</groupId>
 											<artifactId>java17</artifactId>
@@ -310,8 +294,7 @@
 								<goal>copy-resources</goal>
 							</goals>
 							<configuration>
-								<outputDirectory>
-									${project.build.outputDirectory}</outputDirectory>
+								<outputDirectory>${project.build.outputDirectory}</outputDirectory>
 								<resources>
 									<resource>
 										<directory>${basedir}</directory>
@@ -330,8 +313,7 @@
 								<goal>copy-resources</goal>
 							</goals>
 							<configuration>
-								<outputDirectory>
-									${project.build.directory}/apidocs</outputDirectory>
+								<outputDirectory>${project.build.directory}/apidocs</outputDirectory>
 								<resources>
 									<resource>
 										<directory>${basedir}</directory>
@@ -351,21 +333,13 @@
 					<artifactId>maven-antrun-plugin</artifactId>
 					<executions>
 						<execution>
-							<!-- Put module-info.class in META-INF/versions/9 to
-							maximize backwards -->
-							<!-- compatibility. This has to be done after the
-							jar is created, since -->
-							<!-- module-info.class cannot be copied to the
-							target directory, otherwise -->
-							<!-- this build or the following incremental build
-							will cause Animal Sniffer -->
-							<!-- to fail, since it depends upon ASM 5, which
-							balks when it hits -->
-							<!-- module-info.class with: "Execution
-							check-signatures of goal -->
-							<!--
-							org.apache.maven.plugins:maven-enforcer-plugin:3.0.0-M3:enforce
-							failed: -->
+							<!-- Put module-info.class in META-INF/versions/9 to maximize backwards -->
+							<!-- compatibility. This has to be done after the jar is created, since -->
+							<!-- module-info.class cannot be copied to the target directory, otherwise -->
+							<!-- this build or the following incremental build will cause Animal Sniffer -->
+							<!-- to fail, since it depends upon ASM 5, which balks when it hits -->
+							<!-- module-info.class with: "Execution check-signatures of goal -->
+							<!-- org.apache.maven.plugins:maven-enforcer-plugin:3.0.0-M3:enforce failed: -->
 							<!-- This feature requires ASM6". -->
 							<id>add-module-info-to-jar</id>
 							<phase>package</phase>
@@ -374,24 +348,17 @@
 							</goals>
 							<configuration>
 								<target>
-									<jar update="true"
-										destfile="${project.build.directory}/${project.build.finalName}.jar">
-										<zipfileset prefix="META-INF/versions/9"
-											dir="${project.basedir}/src/module-info/io.github.classgraph"
-											includes="module-info.class" />
+									<jar update="true" destfile="${project.build.directory}/${project.build.finalName}.jar">
+										<zipfileset prefix="META-INF/versions/9" dir="${project.basedir}/src/module-info/io.github.classgraph" includes="module-info.class" />
 									</jar>
 								</target>
 							</configuration>
 						</execution>
 						<execution>
-							<!-- Make duplicate copy of Javadoc into a
-							subdirectory with the name of the module, -->
-							<!-- since Eclipse (and possibly other tools)
-							detects the presence of the module -->
-							<!-- descriptor, and expects the Javadoc files to
-							use modular paths (#583). -->
-							<!-- Needs to happen before maven-gpg-plugin runs,
-							otherwise signature will be invalid. -->
+							<!-- Make duplicate copy of Javadoc into a subdirectory with the name of the module, -->
+							<!-- since Eclipse (and possibly other tools) detects the presence of the module -->
+							<!-- descriptor, and expects the Javadoc files to use modular paths (#583). -->
+							<!-- Needs to happen before maven-gpg-plugin runs, otherwise signature will be invalid. -->
 							<id>add-modular-javadoc</id>
 							<phase>verify</phase>
 							<goals>
@@ -399,12 +366,8 @@
 							</goals>
 							<configuration>
 								<target>
-									<jar update="true"
-										destfile="${project.build.directory}/${project.build.finalName}-javadoc.jar">
-										<zipfileset
-											prefix="io.github.classgraph"
-											dir="${project.build.directory}/apidocs"
-											includes="**/*" />
+									<jar update="true" destfile="${project.build.directory}/${project.build.finalName}-javadoc.jar">
+										<zipfileset prefix="io.github.classgraph" dir="${project.build.directory}/apidocs" includes="**/*" />
 									</jar>
 								</target>
 							</configuration>
@@ -418,26 +381,17 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<configuration>
 						<encoding>UTF-8</encoding>
-						<!-- Can't use "release" option, because ClassGraph
-						needs to be built in JDK 7 -->
-						<!-- compatibility mode, and the @FunctionalInterface
-						annotation was not available -->
-						<!-- in JDK 7. If building with "source" and "target"
-						switches, unknown annotations -->
-						<!-- compile fine as long as they exist in the compiling
-						JDK (in this case, JDK 8+). -->
-						<!-- Missing annotations don't trigger a linkage error
-						or ClassNotFoundException -->
+						<!-- Can't use "release" option, because ClassGraph needs to be built in JDK 7 -->
+						<!-- compatibility mode, and the @FunctionalInterface annotation was not available -->
+						<!-- in JDK 7. If building with "source" and "target" switches, unknown annotations -->
+						<!-- compile fine as long as they exist in the compiling JDK (in this case, JDK 8+). -->
+						<!-- Missing annotations don't trigger a linkage error or ClassNotFoundException -->
 						<!-- unless the annotation is actually read. -->
-						<!-- However, note that not explicitly specifying a JDK
-						7 rt.jar as the bootstrap -->
-						<!-- classpath (in order to build on a newer JDK, which
-						does have @FunctionalInterface) -->
-						<!-- will lead to the following build-time warning, if
-						maven.compiler.showWarnings -->
+						<!-- However, note that not explicitly specifying a JDK 7 rt.jar as the bootstrap -->
+						<!-- classpath (in order to build on a newer JDK, which does have @FunctionalInterface) -->
+						<!-- will lead to the following build-time warning, if maven.compiler.showWarnings -->
 						<!-- is set to true: -->
-						<!-- "[WARNING] bootstrap class path not set in
-						conjunction with -source 7" -->
+						<!-- "[WARNING] bootstrap class path not set in conjunction with -source 7" -->
 						<!-- TODO: JDK 7 is no longer supported as of JDK 20. -->
 						<source>7</source>
 						<target>7</target>
@@ -447,8 +401,7 @@
 						<useIncrementalCompilation>false</useIncrementalCompilation>
 						<compilerArgs>
 							<arg>-Xlint:all</arg>                            <!-- Max lint -->
-							<arg>-Xlint:-options</arg>                            <!-- Remove warnings about
-							JDK7 being deprecated sometime -->
+							<arg>-Xlint:-options</arg>                            <!-- Remove warnings about JDK7 being deprecated sometime -->
 							<arg>-Werror</arg>                            <!-- Stop on warnings -->
 						</compilerArgs>
 					</configuration>
@@ -513,33 +466,22 @@
 							<manifestEntries>
 								<!-- Add OSGi bundle attributes to manifest -->
 								<Bundle-Category>Utilities</Bundle-Category>
-								<Bundle-License>
-									http://opensource.org/licenses/MIT</Bundle-License>
+								<Bundle-License>http://opensource.org/licenses/MIT</Bundle-License>
 								<Bundle-ManifestVersion>2</Bundle-ManifestVersion>
 								<Bundle-Name>ClassGraph</Bundle-Name>
-								<Bundle-SymbolicName>
-									${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+								<Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
 								<Bundle-Vendor>Luke Hutchison</Bundle-Vendor>
 								<Bundle-Description>${project.description}</Bundle-Description>
 								<Bundle-Version>${project.version}</Bundle-Version>
-								<Require-Capability>
-									osgi.ee;filter:="(&amp;(osgi.ee=JavaSE)(version=1.7))"</Require-Capability>
-								<Export-Package>
-									io.github.classgraph;version="${project.version}"</Export-Package>
-								<!-- Make sure "requires" entries in the module
-								descriptor match these imports: -->
-								<!--
-								src/main/module-info/io.github.classgraph/module-info.java -->
-								<Import-Package>
-									javax.xml.xpath,javax.xml.namespace,javax.xml.parsers,org.w3c.dom,sun.misc;resolution:="optional",sun.nio.ch;resolution:="optional",io.github.toolfactory.narcissus;resolution:="optional",io.github.toolfactory.jvm;resolution:="optional"</Import-Package>
-								<!-- Add the same module dependencies that are
-								specified in module-info.java -->
-								<Dependencies>
-									java.xml,jdk.unsupported,java.management,java.logging</Dependencies>
-								<!-- This is a multi-release jar, since
-								module-info.class will be added to -->
-								<!-- META-INF/versions/9 , so we need to set the
-								Multi-Release entry to true -->
+								<Require-Capability>osgi.ee;filter:="(&amp;(osgi.ee=JavaSE)(version=1.7))"</Require-Capability>
+								<Export-Package>io.github.classgraph;version="${project.version}"</Export-Package>
+								<!-- Make sure "requires" entries in the module descriptor match these imports: -->
+								<!-- src/main/module-info/io.github.classgraph/module-info.java -->
+								<Import-Package>javax.xml.xpath,javax.xml.namespace,javax.xml.parsers,org.w3c.dom,sun.misc;resolution:="optional",sun.nio.ch;resolution:="optional",io.github.toolfactory.narcissus;resolution:="optional",io.github.toolfactory.jvm;resolution:="optional"</Import-Package>
+								<!-- Add the same module dependencies that are specified in module-info.java -->
+								<Dependencies>java.xml,jdk.unsupported,java.management,java.logging</Dependencies>
+								<!-- This is a multi-release jar, since module-info.class will be added to -->
+								<!-- META-INF/versions/9 , so we need to set the Multi-Release entry to true -->
 								<Multi-Release>true</Multi-Release>
 							</manifestEntries>
 						</archive>
@@ -593,8 +535,7 @@
 			<properties>
 				<javadoc.html.version>-html5</javadoc.html.version>
 				<!-- coverall version 4.3.0 does not work with java 9. -->
-				<!-- See:
-				https://github.com/trautonen/coveralls-maven-plugin/issues/112 -->
+				<!-- See: https://github.com/trautonen/coveralls-maven-plugin/issues/112 -->
 				<coveralls.skip>true</coveralls.skip>
 			</properties>
 			<activation>
@@ -602,8 +543,7 @@
 			</activation>
 		</profile>
 
-		<!-- Sign jars for release (./mvnw clean release:prepare
-		release:perform) -->
+		<!-- Sign jars for release (./mvnw clean release:prepare release:perform) -->
 		<profile>
 			<id>release</id>
 			<build>
