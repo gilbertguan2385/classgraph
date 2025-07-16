@@ -89,8 +89,7 @@ public class ClassGraphClassLoader extends ClassLoader {
 
         // Only try environment classloaders if classpath and/or classloaders are not overridden
         if (!classpathOverridden && !classloadersOverridden) {
-            // Try the null classloader first (this will default to the context classloader of the class
-            // that called ClassGraph)
+            // Try the null classloader first (this will default to the bootstrap class loader)
             environmentClassLoaderDelegationOrder = new LinkedHashSet<>();
             environmentClassLoaderDelegationOrder.add(null);
 
