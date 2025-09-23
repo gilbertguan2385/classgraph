@@ -124,6 +124,14 @@ public class PackageInfo implements Comparable<PackageInfo>, HasName {
 
     // -------------------------------------------------------------------------------------------------------------
 
+    void setScanResult(final ScanResult scanResult) {
+        if (annotationInfoSet != null) {
+            for (final AnnotationInfo ai : annotationInfoSet) {
+                ai.setScanResult(scanResult);
+            }
+        }
+    }
+
     /**
      * Get a the annotation on this package, or null if the package does not have the annotation.
      * 
