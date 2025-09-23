@@ -2332,11 +2332,13 @@ public class ClassInfo extends ScanResultObject implements Comparable<ClassInfo>
         final MethodInfoList methodInfoList = new MethodInfoList();
         final Set<Entry<String, String>> nameAndTypeDescriptorSet = new HashSet<>();
         for (final ClassInfo ci : getMethodOverrideOrder()) {
-            for (final MethodInfo mi : ci.getDeclaredMethodInfo(methodName, getNormalMethods, getConstructorMethods,
+            // Constructors are not inherited from superclasses
+            boolean shouldGetConstructorMethods = ci == this && getConstructorMethods;
+            for (final MethodInfo mi : ci.getDeclaredMethodInfo(methodName, getNormalMethods, shouldGetConstructorMethods,
                     getStaticInitializerMethods)) {
-                // If method/constructor has not been overridden by method of same name and type descriptor 
+                // If method has not been overridden by method of same name and type descriptor
                 if (nameAndTypeDescriptorSet.add(new SimpleEntry<>(mi.getName(), mi.getTypeDescriptorStr()))) {
-                    // Add method/constructor to output order
+                    // Add method to output order
                     methodInfoList.add(mi);
                 }
             }
