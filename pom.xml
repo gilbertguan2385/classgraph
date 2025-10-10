@@ -407,8 +407,8 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
 					<configuration>
-						<!-- Suppresses the warning when Narcissus is loaded -->
-						<argLine>--enable-native-access=ALL-UNNAMED</argLine>
+						<!-- Suppress warning when Narcissus is loaded for testing -->
+					    <argLine>${surefireArgLine}</argLine>
 					</configuration>
 				</plugin>
 
@@ -513,15 +513,24 @@
 		<!-- Compile Javadoc to HTML5 if building with JDK 9+ -->
 		<profile>
 			<id>jdk9plus</id>
+			<activation>
+				<jdk>[9,)</jdk>
+			</activation>
 			<properties>
 				<javadoc.html.version>-html5</javadoc.html.version>
 				<!-- coverall version 4.3.0 does not work with java 9. -->
 				<!-- See: https://github.com/trautonen/coveralls-maven-plugin/issues/112 -->
 				<coveralls.skip>true</coveralls.skip>
 			</properties>
+		</profile>
+		<profile>
+			<id>jdk17plus</id>
 			<activation>
-				<jdk>[9,)</jdk>
+				<jdk>[17,)</jdk>
 			</activation>
+			<properties>
+				<surefireArgLine>--enable-native-access=ALL-UNNAMED</surefireArgLine>
+			</properties>
 		</profile>
 
 		<!-- Sign jars for release (./mvnw clean release:prepare release:perform) -->
