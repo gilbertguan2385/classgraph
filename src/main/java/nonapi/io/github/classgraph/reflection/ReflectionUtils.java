@@ -54,13 +54,6 @@ public final class ReflectionUtils {
                 System.err.println("Could not load Narcissus reflection driver: " + t);
                 // Fall back to standard reflection driver
             }
-        } else if (ClassGraph.CIRCUMVENT_ENCAPSULATION == CircumventEncapsulationMethod.JVM_DRIVER) {
-            try {
-                reflectionDriver = new JVMDriverReflectionDriver();
-            } catch (final Throwable t) {
-                System.err.println("Could not load JVM-Driver reflection driver: " + t);
-                // Fall back to standard reflection driver
-            }
         }
         if (reflectionDriver == null) {
             reflectionDriver = new StandardReflectionDriver();

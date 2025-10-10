@@ -23,26 +23,11 @@ class EncapsulationCircumventionTest {
     /** Test Narcissus. */
     @Test
     void testNarcissus() {
-        ClassGraph.CIRCUMVENT_ENCAPSULATION = CircumventEncapsulationMethod.NARCISSUS;
+        ClassGraph.CIRCUMVENT_ENCAPSULATION = CircumventEncapsculationMethod.NARCISSUS;
         final ReflectionUtils reflectionUtils = new ReflectionUtils();
         assertThat(
                 reflectionUtils.getFieldVal(true, reflectionUtils, "reflectionDriver").getClass().getSimpleName())
                         .isEqualTo("NarcissusReflectionDriver");
-        try (ScanResult scanResult = new ClassGraph()
-                .acceptPackages(EncapsulationCircumventionTest.class.getPackage().getName()).enableAllInfo()
-                .scan()) {
-            assertThat(scanResult.getAllClasses().getNames()).isNotEmpty();
-        }
-    }
-
-    /** Test JVM-Driver. */
-    @Test
-    void testJVMDriver() {
-        ClassGraph.CIRCUMVENT_ENCAPSULATION = CircumventEncapsulationMethod.JVM_DRIVER;
-        final ReflectionUtils reflectionUtils = new ReflectionUtils();
-        assertThat(
-                reflectionUtils.getFieldVal(true, reflectionUtils, "reflectionDriver").getClass().getSimpleName())
-                        .isEqualTo("JVMDriverReflectionDriver");
         try (ScanResult scanResult = new ClassGraph()
                 .acceptPackages(EncapsulationCircumventionTest.class.getPackage().getName()).enableAllInfo()
                 .scan()) {

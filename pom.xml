@@ -31,7 +31,7 @@
 		<connection>scm:git:git@github.com:classgraph/classgraph.git</connection>
 		<developerConnection>scm:git:git@github.com:classgraph/classgraph.git</developerConnection>
 		<url>https://github.com/classgraph/classgraph</url>
-		<tag>classgraph-4.8.181</tag>
+		<tag>classgraph-4.8.182</tag>
 	</scm>
 
 	<issueManagement>
@@ -58,13 +58,13 @@
 		<dependency>
 			<groupId>io.github.toolfactory</groupId>
 			<artifactId>narcissus</artifactId>
-			<version>1.0.7</version>
+			<version>1.0.11</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>io.github.toolfactory</groupId>
 			<artifactId>jvm-driver</artifactId>
-			<version>9.7.1</version>
+			<version>9.9.10</version>
 			<optional>true</optional>
 		</dependency>
 
@@ -429,6 +429,10 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
+					<configuration>
+						<!-- Suppresses the warning when Narcissus is loaded -->
+						<argLine>--enable-native-access=ALL-UNNAMED</argLine>
+					</configuration>
 				</plugin>
 
 				<!-- Add src/test/perf to test sources -->
