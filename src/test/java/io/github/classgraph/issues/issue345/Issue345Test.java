@@ -102,9 +102,6 @@ public class Issue345Test {
 
     /**
      * Test that overriding classloaders does not allow other classloaders to be scanned.
-     *
-     * @throws Exception
-     *             the exception
      */
     @Test
     public void issue345b() {

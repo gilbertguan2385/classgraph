@@ -86,7 +86,7 @@ public class ClassGraph {
      * Method to use to attempt to circumvent encapsulation in JDK 16+, in order to get access to a classloader's
      * private classpath.
      */
-    public enum CircumventEncapsulationMethod {
+    public static enum CircumventEncapsulationMethod {
         /**
          * Use the reflection API and {@link AccessibleObject#setAccessible(boolean)} to try to gain access to
          * private classpath fields or methods in order to determine the classpath.

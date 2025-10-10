@@ -15,12 +15,8 @@ import io.github.classgraph.ScanResult;
  * Issue289.
  */
 public class Issue289Test {
-
     /**
      * Issue 289.
-     *
-     * @throws Exception
-     *             the exception
      */
     @Test
     public void issue289() {

@@ -369,34 +369,19 @@
 					</executions>
 				</plugin>
 
-				<!-- Compile sources (main for JDK 7, test for JDK 8) -->
+				<!-- Compile sources -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<configuration>
 						<encoding>UTF-8</encoding>
-						<!-- Can't use "release" option, because ClassGraph needs to be built in JDK 7 -->
-						<!-- compatibility mode, and the @FunctionalInterface annotation was not available -->
-						<!-- in JDK 7. If building with "source" and "target" switches, unknown annotations -->
-						<!-- compile fine as long as they exist in the compiling JDK (in this case, JDK 8+). -->
-						<!-- Missing annotations don't trigger a linkage error or ClassNotFoundException -->
-						<!-- unless the annotation is actually read. -->
-						<!-- However, note that not explicitly specifying a JDK 7 rt.jar as the bootstrap -->
-						<!-- classpath (in order to build on a newer JDK, which does have @FunctionalInterface) -->
-						<!-- will lead to the following build-time warning, if maven.compiler.showWarnings -->
-						<!-- is set to true: -->
-						<!-- "[WARNING] bootstrap class path not set in conjunction with -source 7" -->
-						<!-- TODO: JDK 7 is no longer supported as of JDK 20. -->
-						<source>7</source>
-						<target>7</target>
-						<!-- Tests use recent JDK features -->
-						<testSource>8</testSource>
-						<testTarget>8</testTarget>
+						<!-- JDK 7 is no longer supported as of JDK 20. -->
+						<release>8</release>
 						<useIncrementalCompilation>false</useIncrementalCompilation>
 						<compilerArgs>
-							<arg>-Xlint:all</arg>                            <!-- Max lint -->
-							<arg>-Xlint:-options</arg>                            <!-- Remove warnings about JDK7 being deprecated sometime -->
-							<arg>-Werror</arg>                            <!-- Stop on warnings -->
+							<arg>-Xlint:all</arg>             <!-- Max lint -->
+							<arg>-Xlint:-options</arg>        <!-- Suppress JDK 8 is obsolete warning -->
+							<arg>-Werror</arg>
 						</compilerArgs>
 					</configuration>
 					<executions>
@@ -408,9 +393,7 @@
 							</goals>
 							<configuration>
 								<encoding>UTF-8</encoding>
-								<!-- Tests use recent JDK features -->
-								<source>8</source>
-								<target>8</target>
+								<release>8</release>
 								<compilerArgs>
 									<arg>-parameters</arg>
 								</compilerArgs>

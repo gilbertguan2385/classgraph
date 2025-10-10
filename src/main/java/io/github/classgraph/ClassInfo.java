@@ -2797,6 +2797,8 @@ public class ClassInfo extends ScanResultObject implements Comparable<ClassInfo>
     }
 
     /**
+     * Get the enum constants of an enum class.
+     * 
      * @return All enum constants of an enum class as a list of {@link FieldInfo} objects (enum constants are stored
      *         as fields in Java classes).
      */
@@ -2812,7 +2814,11 @@ public class ClassInfo extends ScanResultObject implements Comparable<ClassInfo>
         });
     }
 
-    /** @return All enum constants of an enum class as a list of objects of the same type as the enum. */
+    /**
+     * Get the enum constants of an enum class.
+     * 
+     * @return All enum constants of an enum class as a list of objects of the same type as the enum.
+     */
     public List<Object> getEnumConstantObjects() {
         if (!isEnum()) {
             throw new IllegalArgumentException("Class " + getName() + " is not an enum");

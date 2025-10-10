@@ -55,6 +55,8 @@ public class CloseableByteBuffer implements Closeable {
     }
 
     /**
+     * Get the wrapped ByteBuffer.
+     * 
      * @return The wrapped {@link ByteBuffer}.
      */
     public ByteBuffer getByteBuffer() {

@@ -126,6 +126,10 @@ public class ModulePathInfo {
             '\0', // --add-opens (only one param per switch)
             '\0' // --add-reads (only one param per switch)
     );
+    
+    /* Module path info. */
+    public ModulePathInfo() {
+    }    
 
     /** Set to true once {@link #getRuntimeInfo()} is called. */
     private final AtomicBoolean gotRuntimeInfo = new AtomicBoolean();

@@ -23,7 +23,7 @@ class EncapsulationCircumventionTest {
     /** Test Narcissus. */
     @Test
     void testNarcissus() {
-        ClassGraph.CIRCUMVENT_ENCAPSULATION = CircumventEncapsculationMethod.NARCISSUS;
+        ClassGraph.CIRCUMVENT_ENCAPSULATION = CircumventEncapsulationMethod.NARCISSUS;
         final ReflectionUtils reflectionUtils = new ReflectionUtils();
         assertThat(
                 reflectionUtils.getFieldVal(true, reflectionUtils, "reflectionDriver").getClass().getSimpleName())
