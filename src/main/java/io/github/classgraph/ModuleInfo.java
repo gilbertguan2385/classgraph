@@ -217,6 +217,14 @@ public class ModuleInfo implements Comparable<ModuleInfo>, HasName {
 
     // -------------------------------------------------------------------------------------------------------------
 
+    void setScanResult(final ScanResult scanResult) {
+      if (annotationInfoSet != null) {
+        for (final AnnotationInfo ai : annotationInfoSet) {
+          ai.setScanResult(scanResult);
+        }
+      }
+    }
+
     /**
      * Add annotations found in a module descriptor classfile.
      *

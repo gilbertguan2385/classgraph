@@ -352,6 +352,16 @@ public final class ScanResult implements Closeable {
                 ci.setReferencedClasses(new ClassInfoList(refdClassesFiltered, /* sortByName = */ true));
             }
         }
+
+        if (scanSpec.enableClassInfo) {
+          for (final PackageInfo pkgInfo : packageNameToPackageInfo.values()) {
+              pkgInfo.setScanResult(this);
+          }
+
+          for (final ModuleInfo moduleInfo : moduleNameToModuleInfo.values()) {
+              moduleInfo.setScanResult(this);
+          }
+        }
     }
 
     // -------------------------------------------------------------------------------------------------------------
