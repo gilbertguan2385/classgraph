@@ -687,11 +687,14 @@ public class NestedJarHandler {
      *             Signals that an I/O exception has occurred.
      */
     public InputStream openInflaterInputStream(final InputStream rawInputStream) throws IOException {
+        if (closed.get()) {
+            throw new IOException("Already closed");
+        }
+        @SuppressWarnings("resource")
+        final RecyclableInflater recyclableInflater = inflaterRecycler.acquire();
+        final Inflater inflater = recyclableInflater.getInflater();
         return new InputStream() {
             // Gen Inflater instance with nowrap set to true (needed by zip entries)
-            @SuppressWarnings("resource")
-            private final RecyclableInflater recyclableInflater = inflaterRecycler.acquire();
-            private final Inflater inflater = recyclableInflater.getInflater();
             private final AtomicBoolean closed = new AtomicBoolean();
             private final byte[] buf = new byte[INFLATE_BUF_SIZE];
             private static final int INFLATE_BUF_SIZE = 8192;
@@ -1081,7 +1084,6 @@ public class NestedJarHandler {
             }
             if (inflaterRecycler != null) {
                 inflaterRecycler.forceClose();
-                inflaterRecycler = null;
             }
             // Temp files have to be deleted last, after all PhysicalZipFiles are closed and
             // files are unmapped
